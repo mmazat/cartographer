@@ -104,20 +104,22 @@ namespace io {
          sbet_data.time=gpsSeconds;
          auto &pose_rot=node.pose().rotation();
          Eigen::Quaterniond q(pose_rot.w(),pose_rot.x(),pose_rot.y(),pose_rot.z());
-         Eigen::Vector3d rpy= q.toRotationMatrix().eulerAngles(2,1,0);
+         Eigen::Matrix3d R=q.toRotationMatrix();
+         double rpy[3];
+         ceres::DecomposeRotationToNovatelRPY(ceres::ColumnMajorAdapter3x3(R.data()),rpy);
+
          //local translation could be also ecef, in such case
          auto &t=node.pose().translation();
          Eigen::Vector3d local_pos(t.x(),t.y(),t.z());
          Eigen::Vector3d ecef_pos=local_pos+Origin_ECEF;
          double lat, lon, h;
-         geodesy.EcefToGeodetic(lat,lon,h,ecef_pos[0],ecef_pos[1],ecef_pos[2]);
-
+         geodesy.EcefToGeodetic(lat,lon,h,ecef_pos[0],ecef_pos[1],ecef_pos[2]);        
          sbet_data.latitude=deg2rad(lat);
          sbet_data.longitude=deg2rad(lon);
          sbet_data.altitude=h;
-         sbet_data.roll=rpy[0];
-         sbet_data.pitch=rpy[1];
-         sbet_data.platform_heading=rpy[2];
+         sbet_data.roll=deg2rad(rpy[0]);
+         sbet_data.pitch=deg2rad(rpy[1]);
+         sbet_data.platform_heading=deg2rad(rpy[2]);
 
          ofs.write((char *) &sbet_data, sizeof(sbet_data));
       }
