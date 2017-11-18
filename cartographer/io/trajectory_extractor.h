@@ -15,8 +15,7 @@ namespace io {
 class TrajectoryExtractor
 {
 public:
-  TrajectoryExtractor(mapping::proto::SparsePoseGraph& pose_graph_proto);
-   void ExtractToTextFile(std::string file_name);
+  TrajectoryExtractor(mapping::proto::SparsePoseGraph& pose_graph_proto);  
    /**
     * @brief ExtractToSBETFile
     * @param file_name
